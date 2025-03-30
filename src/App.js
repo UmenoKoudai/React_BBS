@@ -63,7 +63,7 @@ function App() {
     // })
     // .catch(error => console.log("Error:", error));
 
-    fetch("http://localhost:5000/threads")
+    fetch("https://localhost:5000/threads")
     .then(res => res.json())
     .then(data => {
       console.log("API response", data);
@@ -76,7 +76,7 @@ function App() {
     const title = titleRef.current.value;
     const summary = summaryRef.current.value;
 
-    fetch("http://localhost:5000/threads", {
+    fetch("https://localhost:5000/threads", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

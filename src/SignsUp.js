@@ -15,7 +15,7 @@ function SignUp({ setAuthToken }){
             alert("無効なEmail形式です");
             return;
         }
-        fetch("http://localhost:5000/auth", {
+        fetch("https://localhost:5000/auth", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({

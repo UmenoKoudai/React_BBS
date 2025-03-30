@@ -5,7 +5,7 @@ function Login({ setAuthToken }){
     const [password, setPassword] = useState('');
 
     const handleLogin = () => {
-        fetch("http://localhost:5000/auth/sign_in.json", {
+        fetch("https://localhost:5000/auth/sign_in.json", {
             method: "POST",
             headers: { "Content-type": "application/json"},
             body: JSON.stringify({ email, password }),

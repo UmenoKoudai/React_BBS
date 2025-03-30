@@ -23,7 +23,7 @@ function ThreadData() {
     // }, [])
 
     useEffect(() => {
-        fetch(`http://localhost:5000/threads/${id}?page=${page}&limit=10`)
+        fetch(`https://localhost:5000/threads/${id}?page=${page}&limit=10`)
         .then( res => res.json())
         .then( data => {
             console.log(data);
@@ -58,7 +58,7 @@ function ThreadData() {
         }
         console.log(`Requesting: http://localhost:5000/threads/${id}/comments`);
         
-        fetch(`http://localhost:5000/threads/${id}/comments`,{
+        fetch(`https://localhost:5000/threads/${id}/comments`,{
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -80,7 +80,7 @@ function ThreadData() {
 
     const deleteThread = () => {
         if(window.confirm("本当にスレッドを削除しますか？")){
-            fetch(`http://localhost:5000/threads/${id}`, {
+            fetch(`https://localhost:5000/threads/${id}`, {
                 method: "DELETE",
                 headers: { "content-Type": "application/json"},
                 credentials: "include",
@@ -100,7 +100,7 @@ function ThreadData() {
 
     const deleteComment = (commentId) => {
         if(window.confirm("本当にコメントを削除しますか？")){
-            fetch(`http://localhost:5000/threads/${id}/comments/${commentId}`,{
+            fetch(`https://localhost:5000/threads/${id}/comments/${commentId}`,{
                 method: "DELETE",
                 headers: { "content-Type": "application/json" },
                 credentials: "include",
