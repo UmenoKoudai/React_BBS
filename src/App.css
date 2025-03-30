@@ -36,3 +36,63 @@
     transform: rotate(360deg);
   }
 }
+/* スレッドリストのスタイル */
+.thread-list {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+  border-radius: 10px;
+  background-color: #f9f9f9;
+}
+
+/* スレッドアイテムのデザイン */
+.thread-item {
+  border-bottom: 1px solid #ddd;
+  padding: 15px 0;
+}
+
+.thread-item h3 {
+  font-size: 20px;
+  margin: 0;
+  color: #333;
+}
+
+.thread-item p {
+  font-size: 14px;
+  color: #666;
+}
+
+/* 入力フォームのスタイル */
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 400px;
+  margin: 20px auto;
+}
+
+.input-group input {
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+button {
+  padding: 10px;
+  font-size: 16px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+comment-area{
+  
+}
+
