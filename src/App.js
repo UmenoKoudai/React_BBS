@@ -4,66 +4,55 @@ import { useEffect, useRef, useState } from 'react';
 import {BrowserRouter as Router, Routes, Route, Link} from "react-router-dom";
 import ThreadData from './ThreadData';
 import Login from './Login';
-import SignUp from './SignsUp';
+import SignUp from './SignsUp'
+//import { useNavigate } from 'react-router-dom';
 
 function App() {
 
   const [threads, setThread] = useState([]);
   const [authToken, setAuthToken] = useState(false);
+  const [user, setUser] = useState(null);
   const titleRef = useRef();
   const summaryRef = useRef();
-
-  const getAuthHeaders = () => {
-    return{
-      "access-token": localStorage.getItem("access-token"),
-      "client": localStorage.getItem("client"),
-      "uid": localStorage.getItem("uid"),
-    };
-  };
-
-  const handleSinup = () => {
-  };
-
-  const handleLogin = () => {
-    fetch("http://localhost:5000/auth/sign_in", {
-      method: "POST",
-      headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({ email: "your_email@example.com", password: "your_passward"}),
-    })
-    .then(res => {
-      if(!res.ok) throw new Error("Login faild");
-
-      const accessToken = res.headers.get("access-token");
-      const client = res.headers.get("client");
-      const uid = res.headers.get("uid");
-
-      if(accessToken && client && uid){
-        localStorage.setItem("access-token", accessToken);
-        localStorage.setItem("client", client);
-        localStorage.setItem("uid", uid);
-        setAuthToken(true);
-      }
-
-      return res.json()
-    })
-    .catch(error => console.error("Error:", error));
-  };
+  //const navigate = useNavigate();
 
   useEffect(() => {
-    // fetch("http://localhost:5000/auth/sign_in", {
-    //   method: "POST",
-    //   headers: { "Content-TYpe": "application/json", },
-    //   body: JSON.stringify({ email: "your_email@example.com", password: "your_password"}),
-    // })
-    // .then(res => res.json())
-    // .then(data => {
-    //   if(data && data.token){
-    //     setAuthToken(data.token);
-    //   }
-    // })
-    // .catch(error => console.log("Error:", error));
+    const accessToken = localStorage.getItem("access-token");
+    const client = localStorage.getItem("client");
+    const uid = localStorage.getItem("uid");
+    console.log("accessToken:", accessToken, "client:", client, "uid:", uid)
 
-    fetch("https://localhost:5000/threads")
+    if(accessToken && client && uid){
+      setAuthToken(true);
+      fetch("http://localhost:5000/v1/auth/validate_token",{
+        method: "GET",
+        headers:{
+          "Content-Type": "application/json",
+          "Access-token": accessToken,
+          "Client": client,
+          "Uid": uid,
+        },
+      })
+      .then(res => {
+        if(!res.ok){
+          return res.json().then(err => {
+            throw new Error(`Error ${res.status}: ${JSON.stringify(err)}`);
+          });
+        }
+        return res.json();
+      })
+      .then(data => {
+        console.log("User:", data);
+        setUser(data);
+      })
+      .catch(error => console.error("Error:", error));
+    }
+
+
+  }, []);
+
+  useEffect(() => {
+    fetch("http://localhost:5000/threads")
     .then(res => res.json())
     .then(data => {
       console.log("API response", data);
@@ -76,7 +65,7 @@ function App() {
     const title = titleRef.current.value;
     const summary = summaryRef.current.value;
 
-    fetch("https://localhost:5000/threads", {
+    fetch("http://localhost:5000/threads", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -93,13 +82,50 @@ function App() {
     });
   };
 
+  const handleLogout = () => {
+    const accessToken = localStorage.getItem("access-token");
+    const client = localStorage.getItem("client");
+    const uid = localStorage.getItem("uid");
+
+    // ログアウトリクエスト
+    fetch("http://localhost:5000/v1/auth/sign_out", {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        "Access-token": accessToken,
+        "Client": client,
+        "Uid": uid,
+      },
+    })
+      .then((response) => {
+        if (response.ok) {
+          // ログアウト成功後、ローカルストレージをクリア
+          localStorage.removeItem("access-token");
+          localStorage.removeItem("client");
+          localStorage.removeItem("uid");
+
+          setAuthToken(false); // 認証トークンを更新
+
+          //navigate("/"); // トップページにリダイレクト
+        } else {
+          alert("ログアウトに失敗しました");
+        }
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+        alert("ログアウトに失敗しました");
+      });
+  };
+
+
   return(
     <Router>
       <div>
+        <button onClick={handleLogout}>ログアウト</button>
         {!authToken ? (
         <div>
-          <Link to="/login">Login</Link>
-          <Link to="/signup">SingUp</Link>
+          <Link to="/login">Login </Link>
+          <Link to="/signup"> SingUp</Link>
         </div>) : (<p>ログイン済み</p>)}
       </div>
       <Routes>
@@ -123,7 +149,7 @@ function App() {
         }/>
         <Route path="/login" element={<Login setAuthToken={setAuthToken} />} />
         <Route path="/signup" element={<SignUp setAuthToken={setAuthToken} />} />
-        <Route path="/threads/:id" element={<ThreadData />}/>
+        <Route path="/threads/:id" element={<ThreadData user={user}/>}/>
       </Routes>
     </Router>
   );

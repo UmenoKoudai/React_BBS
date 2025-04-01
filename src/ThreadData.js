@@ -1,29 +1,38 @@
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 
-function ThreadData() {
+function ThreadData({ user }) {
     const { id } = useParams();
     const [thread, setThread] = useState(null);
     const [comments, setComment] = useState([]);
     const [page, setpage] = useState(1);
     const [totalePage, setTotalPage] = useState(1);
-    const [user, setUser] = useState(null);
+    
     
     const commentRef = useRef();
     const postNameRef = useRef();
 
     const limit = 10;
 
-
-    // useEffect(() => {
-    //     fetch("http://localhost:5000/auth/user", { credentials: "include"})
-    //     .then(res => res.json())
-    //     .then(data => setUser(data))
-    //     .catch(error => console.error("Error:", error));
-    // }, [])
+    useEffect(() => {
+        console.log("ログインユーザー:", user);
+    }, [user]);
 
     useEffect(() => {
-        fetch(`https://localhost:5000/threads/${id}?page=${page}&limit=10`)
+        const accessToken = localStorage.getItem("access-token");
+        const client = localStorage.getItem("client");
+        const uid = localStorage.getItem("uid");
+
+
+        fetch(`http://localhost:5000/threads/${id}?page=${page}&limit=10`,{
+            method: "GET",
+            headers:{
+                "Content-Type": "application/json",
+                "access-token": accessToken,
+                "client": client,    
+                "uid": uid
+            },
+        })
         .then( res => res.json())
         .then( data => {
             console.log(data);
@@ -58,7 +67,7 @@ function ThreadData() {
         }
         console.log(`Requesting: http://localhost:5000/threads/${id}/comments`);
         
-        fetch(`https://localhost:5000/threads/${id}/comments`,{
+        fetch(`http://localhost:5000/threads/${id}/comments`,{
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -80,9 +89,17 @@ function ThreadData() {
 
     const deleteThread = () => {
         if(window.confirm("本当にスレッドを削除しますか？")){
-            fetch(`https://localhost:5000/threads/${id}`, {
+            const accessToken = localStorage.getItem("access-token");
+            const client = localStorage.getItem("client");
+            const uid = localStorage.getItem("uid");
+            fetch(`http://localhost:5000/threads/${id}`, {
                 method: "DELETE",
-                headers: { "content-Type": "application/json"},
+                headers: { 
+                    "content-Type": "application/json",
+                    "access-token": accessToken,
+                    "client": client,
+                    "uid": uid
+                },
                 credentials: "include",
             })
             .then(res => {
@@ -99,22 +116,38 @@ function ThreadData() {
     };
 
     const deleteComment = (commentId) => {
+        const accessToken = localStorage.getItem("access-token");
+        const client = localStorage.getItem("client");
+        const uid = localStorage.getItem("uid");
+
+        console.log("AccessToken:", accessToken, "Client:", client, "Uid:", uid);
+        console.log("CommentID:", commentId);
+
+
         if(window.confirm("本当にコメントを削除しますか？")){
-            fetch(`https://localhost:5000/threads/${id}/comments/${commentId}`,{
-                method: "DELETE",
-                headers: { "content-Type": "application/json" },
-                credentials: "include",
-            })
-            .then(res => {
-                if(res.ok){
-                    alert("コメントを削除しました")
-                    setComment(prev => prev.filter(c => c.id !== commentId));
-                }
-                else{
-                    alert("コメントの削除に失敗しました")
-                }
-            })
-            .catch(error => console.error("Error:", error));
+            if(accessToken && client && uid){
+                fetch(`http://localhost:5000/threads/${id}/comments/${commentId}`,{
+                    method: "DELETE",
+                    headers: { 
+                        "Content-Type": "application/json",
+                        "Access-token": accessToken,
+                        "Client": client,
+                        "Uid": uid
+                    },
+                    credentials: "include",
+                })
+                .then(res => {
+                    console.log("res:", res);
+                    if(res.ok){
+                        alert("コメントを削除しました")
+                        setComment(prev => prev.filter(c => c.id !== commentId));
+                    }
+                    else{
+                        alert("コメントの削除に失敗しました")
+                    }
+                })
+                .catch(error => console.error("Error:", error));
+            }
         }
     }
 
@@ -122,6 +155,7 @@ function ThreadData() {
         <div>
             {thread && (
                 <>
+                <button onClick={console.log("User:", user)}>ユーザー情報</button>
                 <h2>タイトル：{thread.title}</h2>
                 <p>サマリー：{thread.summary}</p>
                 <h3>コメント</h3>
@@ -130,7 +164,7 @@ function ThreadData() {
                         <li key={index}>
                             <h4>名前：{comment.name}</h4>
                             <div><p>{comment.text}</p></div>
-                            {user?.role === "admin" && (
+                            { user && (
                                 <button onClick={() => {console.log("コメントの削除:", comment, id); deleteComment(comment.id);}}>削除</button>
                             )}
                         </li>
@@ -147,7 +181,7 @@ function ThreadData() {
                     <textarea ref = { commentRef}
                      placeholder="コメントを入力"
                      style={{
-                        width: "100%",
+                        width: "50%",
                         height: "100px",
                         padding: "8px",
                         fontSize: "16px"
@@ -157,7 +191,7 @@ function ThreadData() {
                 <div>
                     <button onClick={ () => {setpage(page - 1); console.log("前へボタンをおしましたページ数:", page)}} disabled={page <= 1}>前へ</button>
                     <button onClick={ () => {setpage(page + 1); console.log("次へボタンをおしましたページ数:", page)}} disabled = { page >= totalePage}>次へ</button>
-                    {user?.role === "admin" && (
+                    {user && (
                        <button onClick={deleteThread} style={{backgroundColor: "red", color:"white"}}>スレッド削除</button>
                     )}
                 </div>

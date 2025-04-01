@@ -1,13 +1,19 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 function Login({ setAuthToken }){
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const navigate = useNavigate();
 
     const handleLogin = () => {
-        fetch("https://localhost:5000/auth/sign_in.json", {
+        console.log(JSON.stringify({ email, password }));
+        fetch("http://localhost:5000/v1/auth/sign_in", {
             method: "POST",
-            headers: { "Content-type": "application/json"},
+            headers: { 
+                "Content-type": "application/json",
+                "Accept": "application/json",
+            },
             body: JSON.stringify({ email, password }),
         })
         .then(res => {
@@ -16,12 +22,15 @@ function Login({ setAuthToken }){
             const accessToken = res.headers.get("access-token");
             const client = res.headers.get("client");
             const uid = res.headers.get("uid");
+            console.log("access-token", accessToken, "client", client, "uid", uid);
 
             if(accessToken && client && uid){
+                console.log("トークンなど受け取れている");
                 localStorage.setItem("access-token", accessToken);
                 localStorage.setItem("client", client);
                 localStorage.setItem("uid", uid);
                 setAuthToken(true);
+                navigate("/threads/1");
             }
             return res.json();
         })

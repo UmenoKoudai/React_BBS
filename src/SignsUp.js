@@ -15,30 +15,30 @@ function SignUp({ setAuthToken }){
             alert("無効なEmail形式です");
             return;
         }
-        fetch("https://localhost:5000/auth", {
+        fetch("http://localhost:5000/v1/auth", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                email: "user@example.com",      
-                password: "dsgia4d2", 
-            })
+                "email": email, 
+                "password": password,
+            }),
         })
-        // .then(res => {
-        //     if(!res.ok) throw new Error("Sign up failed");
-        //     return res.json();
-        // })
-        // .then(data => {
-        //     if(data && data.token){
-        //         handleLogin();
-        //     }
-        // })
+        .then(res => {
+            if(!res.ok) throw new Error("Sign up failed");
+            return res.json();
+        })
+        .then(data => {
+            if(data && data.token){
+                handleLogin();
+            }
+        })
         .catch(error => console.error("Error:", error));
     }
 
     const handleLogin = () => {
-        fetch("http://localhost:5000/auth/sign_in", {
+        fetch("http://localhost:5000/v1/auth/sign_in", {
             method: "POST",
-            headers: { "Content-type": "application/json"},
+            headers: { "Content-Type": "application/json"},
             body: JSON.stringify({ email, password }),
         })
         .then(res => {
