@@ -59,7 +59,7 @@ function App() {
       setThread(Array.isArray(data) ? data : []);
     })
     .catch(error => console.error("Error:", error));
-  }, []);
+  }, [threads]);
 
   const handlePost = () => {
     const title = titleRef.current.value;

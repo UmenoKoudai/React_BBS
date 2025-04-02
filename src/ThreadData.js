@@ -42,16 +42,11 @@ function ThreadData({ user }) {
         })
         .catch(error => console.error("Error:", error));
         
-    }, [id, page]);
+    }, [id, page, comments]);
 
     const handleCommentPost = () => {
         const comment = commentRef.current.value.trim();
         const postname = postNameRef.current.value.trim() || "名無し";
-
-        const currentPage = Math.ceil((comments.length / limit));
-        console.log("投稿した後のコメント数：", comments.length);
-        console.log("投稿した後のリミット数：", limit);
-        console.log("投稿した後のトータルページ数：", currentPage);
 
         if(comments.length >= 50){
             alert("このスレッドは上限に達したので新しくスレッドを立ててください");
