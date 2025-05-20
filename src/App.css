@@ -52,9 +52,10 @@
 }
 
 .thread-item h3 {
-  font-size: 20px;
+  font-size: 50px;
+  display: flexbox;
   margin: 0;
-  color: #333;
+  color: #ff0000;
 }
 
 .thread-item p {

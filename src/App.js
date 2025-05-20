@@ -52,6 +52,10 @@ function App() {
   }, []);
 
   useEffect(() => {
+    fetchThreads();
+  }, []);
+
+  const fetchThreads = () => {
     fetch("http://localhost:5000/threads")
     .then(res => res.json())
     .then(data => {
@@ -59,7 +63,7 @@ function App() {
       setThread(Array.isArray(data) ? data : []);
     })
     .catch(error => console.error("Error:", error));
-  }, [threads]);
+  };
 
   const handlePost = () => {
     const title = titleRef.current.value;
@@ -79,6 +83,7 @@ function App() {
       setThread(pre => [...pre, data]);
       titleRef.current.value = "";
       summaryRef.current.value = "";
+      fetchThreads();
     });
   };
 
@@ -120,7 +125,7 @@ function App() {
 
   return(
     <Router>
-      <div>
+      <div className="center-box">
         <button onClick={handleLogout}>ログアウト</button>
         {!authToken ? (
         <div>
@@ -132,13 +137,13 @@ function App() {
         <Route path="/" element={
           <div>
             <div>
-            <h1>新しいスレッド</h1>
-            <input type="text" ref = {titleRef}></input>
-            <div><input type="text" ref = {summaryRef}></input></div>
-            <div><button onClick={handlePost}>投稿</button></div>
+            <h1 className="thread-item h3">新しいスレッド</h1>
+            <input className="input-group" type="text" ref = {titleRef}></input>
+            <div className="input-group"><input type="text" ref = {summaryRef}></input></div>
+            <div className="input-group"><button onClick={handlePost}>投稿</button></div>
             </div>
             <h1>スレッド一覧</h1>
-            <ul>
+            <ul className='.thread-list'>
               {threads.map(thread => (
                 <li key={thread.id}>
                   <Link to={`/threads/${thread.id}`}>{thread.title}</Link>
